@@ -12,6 +12,7 @@ const CONFIG = {
 
 let reqCounter = 0;
 let refreshCallCount = 0;
+let shouldFailRefresh = false;
 
 app.get('/api/protected', async (req, res) => {
   const reqId = ++reqCounter;
@@ -48,6 +49,15 @@ app.post('/auth/token/refresh', async (_, res) => {
   console.log(`[Refresh ${refreshCallCount}] Iniciando refresh token`);
   
   await new Promise(resolve => setTimeout(resolve, CONFIG.REFRESH_DELAY_MS));
+
+  if (shouldFailRefresh) {
+    console.log(`[Refresh ${refreshCallCount}] Refresh falhou (simulado)`);
+
+    return res.status(401).json({
+      error: 'Unauthorized',
+      message: 'Refresh token inválido ou expirado',
+    });
+  }
   
   console.log(`[Refresh ${refreshCallCount}] Refresh concluído`);
 
@@ -67,10 +77,19 @@ app.get('/api/stats', (_, res) => {
 app.post('/api/reset', (_, res) => {
   refreshCallCount = 0;
   reqCounter = 0;
+  shouldFailRefresh = false;
 
   console.log('Estado resetado');
 
   res.json({ success: true });
+});
+
+app.post('/api/set-refresh-failure', (req, res) => {
+  shouldFailRefresh = req.body.shouldFail ?? true;
+
+  console.log(`Refresh configurado para ${shouldFailRefresh ? 'FALHAR' : 'SUCESSO'}`);
+
+  res.json({ success: true, shouldFailRefresh });
 });
 
 app.listen(CONFIG.PORT, () => {
