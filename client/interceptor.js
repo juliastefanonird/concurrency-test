@@ -9,12 +9,12 @@ const HTTP_UNAUTHORIZED = 401;
 
 const refreshAndRetryRequest = async (originalRequest, axiosInstance, requestId) => {
   try {
-    const newAccessToken = await handleTokenRefresh();
+    await handleTokenRefresh();
 
-    originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+    originalRequest.headers['Authorization'] = `Bearer ${getAccessToken}`;
     originalRequest._retry = true;
 
-    console.log(`[Interceptor] Request ${requestId}: Retentando com novo token: ${newAccessToken}`);
+    console.log(`[Interceptor] Request ${requestId}: Retentando com novo token: ${getAccessToken()}`);
     return axiosInstance(originalRequest);
   } catch (error) {
     return Promise.reject(error);

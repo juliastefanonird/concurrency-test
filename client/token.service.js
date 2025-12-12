@@ -41,10 +41,6 @@ export const handleTokenRefresh = () => {
   isRefreshing = true;
 
   refreshPromise = refreshAccessToken()
-    .then(token => {
-      console.log(`[TokenService] Refresh concluído com sucesso`);
-      return token;
-    })
     .catch(async error => {
       console.log(`[TokenService] Erro no refresh:`, error.message);
       throw error;
