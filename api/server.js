@@ -14,12 +14,13 @@ let reqCounter = 0;
 let refreshCallCount = 0;
 let shouldFailRefresh = false;
 
-app.get('/api/protected', async (req, res) => {
+const protectedHandler = async (req, res) => {
   const reqId = ++reqCounter;
   const authHeader = req.headers.authorization;
   const token = authHeader?.replace('Bearer ', '');
+  const endpoint = req.originalUrl;
 
-  console.log(`[Request ${reqId}] Token recebido: ${token}`);
+  console.log(`[Request ${reqId}] Endpoint: ${endpoint} | Token recebido: ${token}`);
 
   await new Promise(resolve => setTimeout(resolve, CONFIG.API_DELAY_MS));
 
@@ -29,6 +30,7 @@ app.get('/api/protected', async (req, res) => {
     return res.status(401).json({
       error: 'Unauthorized',
       message: 'Token expirado',
+      endpoint,
       requestId: reqId
     });
   }
@@ -37,11 +39,16 @@ app.get('/api/protected', async (req, res) => {
 
   res.json({
     success: true,
-    message: `Request ${reqId} processada com sucesso`,
+    message: `Request processada com sucesso`,
+    endpoint,
     requestId: reqId,
     timestamp: new Date().toISOString()
   });
-});
+};
+
+for (let i = 1; i <= 20; i++) {
+  app.get(`/api/resource/${i}`, protectedHandler);
+}
 
 app.post('/auth/token/refresh', async (_, res) => {
   refreshCallCount++;

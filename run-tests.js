@@ -32,11 +32,23 @@ async function runConcurrencyTest(concurrentRequests) {
   // Dispara todas as requisições ao mesmo tempo (paralelo)
   const promises = Array(concurrentRequests)
     .fill(null)
-    .map((_, i) => 
-      apiClient.get('/api/protected')
-        .then(response => ({ index: i + 1, success: true, data: response.data }))
-        .catch(error => ({ index: i + 1, success: false, error: error.message }))
-    );
+    .map((_, i) => {
+      const endpoint = `/api/resource/${i + 1}`;
+      return apiClient.get(endpoint)
+        .then(response => ({ 
+          endpoint,
+          success: true, 
+          status: response.status,
+          data: response.data 
+        }))
+        .catch(error => ({ 
+          endpoint,
+          success: false, 
+          status: error.response?.status,
+          error: error.message,
+          data: error.response?.data
+        }));
+    });
 
   // Aguarda todas terminarem
   const results = await Promise.all(promises);
@@ -47,11 +59,12 @@ async function runConcurrencyTest(concurrentRequests) {
   const successCount = results.filter(r => r.success).length;
   const failCount = results.filter(r => !r.success).length;
 
-  results.forEach(r => {
+  results.forEach((r, index) => {
+    const payload = JSON.stringify(r.data);
     if (r.success) {
-      console.log(`Request ${r.index}: Sucesso`);
+      console.log(`Request ${index + 1} → ${r.endpoint} → Status ${r.status} → ${payload}`);
     } else {
-      console.log(`Request ${r.index}: Falhou - ${r.error}`);
+      console.log(`Request ${index + 1} → ${r.endpoint} → Status ${r.status} → ${payload}`);
     }
   });
 
@@ -98,11 +111,23 @@ async function runRefreshErrorTest(concurrentRequests) {
 
   const promises = Array(concurrentRequests)
     .fill(null)
-    .map((_, i) => 
-      apiClient.get('/api/protected')
-        .then(response => ({ index: i + 1, success: true, data: response.data }))
-        .catch(error => ({ index: i + 1, success: false, error: error.message, status: error.response?.status }))
-    );
+    .map((_, i) => {
+      const endpoint = `/api/resource/${i + 1}`;
+      return apiClient.get(endpoint)
+        .then(response => ({ 
+          endpoint,
+          success: true, 
+          status: response.status,
+          data: response.data 
+        }))
+        .catch(error => ({ 
+          endpoint,
+          success: false, 
+          status: error.response?.status,
+          error: error.message,
+          data: error.response?.data
+        }));
+    });
 
   const results = await Promise.all(promises);
     
@@ -112,11 +137,12 @@ async function runRefreshErrorTest(concurrentRequests) {
   const successCount = results.filter(r => r.success).length;
   const failCount = results.filter(r => !r.success).length;
 
-  results.forEach(r => {
+  results.forEach((r, index) => {
+    const payload = JSON.stringify(r.data);
     if (r.success) {
-      console.log(`Request ${r.index}: Sucesso (inesperado!)`);
+      console.log(`Request ${index + 1} → ${r.endpoint} → Status ${r.status} → ${payload} (inesperado!)`);
     } else {
-      console.log(`Request ${r.index}: Falhou - ${r.error} - Status: ${r.status}`);
+      console.log(`Request ${index + 1} → ${r.endpoint} → Status ${r.status} → ${payload}`);
     }
   });
 
