@@ -29,13 +29,13 @@ export const createAuthResponseInterceptor = (axiosInstance) => ({
     const requestId = error.response.data.requestId;
     const endpoint = error.response.data.endpoint;
     const status = error.response.status;
-    const data = error.response.data;
+    const message = error.response.data.message;
 
     if (error.response?.status !== HTTP_UNAUTHORIZED || originalRequest._retry) {
       return Promise.reject(error);
     }
 
-    console.log(`[Interceptor] Response Request ${requestId} -> ${endpoint} -> Status ${status} -> ${JSON.stringify(data)}`);
+    console.log(`[Interceptor] Response Request ${requestId} -> ${endpoint} -> Status ${status} -> Message Payload: ${message}`);
 
     if (getIsRefreshing()) {
       console.log(`[Interceptor] Request ${requestId}: Aguardando refresh em andamento`);

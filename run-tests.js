@@ -39,14 +39,13 @@ async function runConcurrencyTest(concurrentRequests) {
           endpoint,
           success: true, 
           status: response.status,
-          data: response.data 
+          message: response.data.message,
         }))
         .catch(error => ({ 
           endpoint,
           success: false, 
           status: error.response?.status,
-          error: error.message,
-          data: error.response?.data
+          message: error.response?.data?.message,
         }));
     });
 
@@ -60,11 +59,10 @@ async function runConcurrencyTest(concurrentRequests) {
   const failCount = results.filter(r => !r.success).length;
 
   results.forEach((r, index) => {
-    const payload = JSON.stringify(r.data);
     if (r.success) {
-      console.log(`Request ${index + 1} → ${r.endpoint} → Status ${r.status} → ${payload}`);
+      console.log(`[TEST] Request ${index + 1} -> ${r.endpoint} -> Status ${r.status} -> Message Payload: ${r.message}`);
     } else {
-      console.log(`Request ${index + 1} → ${r.endpoint} → Status ${r.status} → ${payload}`);
+      console.log(`[TEST] Request ${index + 1} -> ${r.endpoint} -> Status ${r.status} -> Message Payload: ${r.message}`);
     }
   });
 
@@ -118,14 +116,13 @@ async function runRefreshErrorTest(concurrentRequests) {
           endpoint,
           success: true, 
           status: response.status,
-          data: response.data 
+          message: response.data.message,
         }))
         .catch(error => ({ 
           endpoint,
           success: false, 
           status: error.response?.status,
-          error: error.message,
-          data: error.response?.data
+          message: error.response?.data?.message,
         }));
     });
 
@@ -138,11 +135,10 @@ async function runRefreshErrorTest(concurrentRequests) {
   const failCount = results.filter(r => !r.success).length;
 
   results.forEach((r, index) => {
-    const payload = JSON.stringify(r.data);
     if (r.success) {
-      console.log(`Request ${index + 1} → ${r.endpoint} → Status ${r.status} → ${payload} (inesperado!)`);
+      console.log(`[TEST] Request ${index + 1} -> ${r.endpoint} -> Status ${r.status} -> Message Payload: ${r.message} (inesperado!)`);
     } else {
-      console.log(`Request ${index + 1} → ${r.endpoint} → Status ${r.status} → ${payload}`);
+      console.log(`[TEST] Request ${index + 1} -> ${r.endpoint} -> Status ${r.status} -> Message Payload: ${r.message}`);
     }
   });
 
