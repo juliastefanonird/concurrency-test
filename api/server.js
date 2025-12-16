@@ -7,7 +7,6 @@ const CONFIG = {
   PORT: 3333,
   API_DELAY_MS: 200,
   REFRESH_DELAY_MS: 800,
-  TOKEN_EXPIRY_MS: 5000,
 };
 
 let reqCounter = 0;
@@ -42,7 +41,6 @@ const protectedHandler = async (req, res) => {
     message: `Request processada com sucesso`,
     endpoint,
     requestId: reqId,
-    timestamp: new Date().toISOString()
   });
 };
 
@@ -70,7 +68,6 @@ app.post('/auth/token/refresh', async (_, res) => {
 
   res.json({
     accessToken: `new-token-${Date.now()}`,
-    expiresIn: CONFIG.TOKEN_EXPIRY_MS,
   });
 });
 
